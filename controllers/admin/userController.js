@@ -40,13 +40,15 @@ exports.edit = async (req, res) => {
   const user = await User.findById(req.params.id).select("-password");
   if (!user) return res.status(404).json({ message: "User not found" });
 
-  const { name, email, phone, role, address } = req.body;
+  const { name, email, phone, role, address, status, commission } = req.body;
 
   user.name = name;
   user.email = email;
   user.phone = phone;
   user.role = role;
   user.address = address;
+  user.status = status;
+  user.commission = commission;
 
   await user.save();
 

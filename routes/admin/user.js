@@ -35,6 +35,8 @@ router.patch(
     check("email", "Email is required").isEmail(),
     check("role", "Role is required").isIn(["admin", "seller"]),
     check("address", "Address is required").not().isEmpty(),
+    check("status", "Status is required").isIn(["active", "inactive"]),
+    check("commission", "Commission is required").isNumeric(),
   ],
   edit
 );
