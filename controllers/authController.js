@@ -34,8 +34,7 @@ exports.resetPassword = async (req, res) => {
   if (!user) return res.status(400).json({ message: "User not found" });
 
   // hash password
-  const salt = await bcrypt.genSalt(10);
-  user.password = await bcrypt.hash(newPassword, salt);
+  user.password = await user.encryptPassword(newPassword);
 
   // save new user
   await user.save();
@@ -117,10 +116,7 @@ exports.register = async (req, res) => {
 
   // create new user
   user = await new User({ email, phone, name });
-
-  // hash password
-  const salt = await bcrypt.genSalt(10);
-  user.password = await bcrypt.hash(password, salt);
+  user.password = await user.encryptPassword(password);
 
   // save new user
   await user.save();

@@ -31,7 +31,7 @@ exports.list = async (req, res) => {
   }
 };
 
-exports.editUser = async (req, res) => {
+exports.edit = async (req, res) => {
   // check for errors
   const errors = validationResult(req);
   if (!errors.isEmpty())
@@ -53,7 +53,7 @@ exports.editUser = async (req, res) => {
   return res.json({ message: "User updated successfully" });
 };
 
-exports.deactivateUser = async (req, res) => {
+exports.deactivate = async (req, res) => {
   const user = await User.findById(req.params.id).select("-password");
   if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -64,7 +64,7 @@ exports.deactivateUser = async (req, res) => {
   return res.json({ message: "User deactivated successfully" });
 };
 
-exports.activateUser = async (req, res) => {
+exports.activate = async (req, res) => {
   const user = await User.findById(req.params.id).select("-password");
   if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -91,4 +91,37 @@ exports.generateResetPasswordLink = async (req, res) => {
     message: "Reset password link generated successfully",
     resetPasswordLink,
   });
+};
+
+exports.create = async (req, res) => {
+  // check for errors
+  const errors = validationResult(req);
+  if (!errors.isEmpty())
+    return res.status(400).json({ errors: errors.array() });
+
+  const { password, name, email, phone, address, status, commission, role } =
+    req.body;
+
+  const user = new User({
+    name,
+    email,
+    phone,
+    address,
+    status,
+    commission,
+    role,
+  });
+
+  user.password = await user.encryptPassword(password);
+
+  await user.save();
+
+  return res.json({ message: "User created successfully" });
+};
+
+exports.deleteUser = async (req, res) => {
+  const user = await User.findByIdAndDelete(req.params.id);
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  return res.json({ message: "User deleted successfully" });
 };
