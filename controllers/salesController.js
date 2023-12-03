@@ -40,9 +40,13 @@ exports.create = async (req, res) => {
     products.reduce((acc, curr) => {
       return acc + curr.price * curr.quantity;
     }, 0);
-  const subtotal = products.reduce((acc, curr) => {
+  const extrasTotal = extras.reduce((acc, curr) => {
     return acc + curr.price * curr.quantity;
   }, 0);
+  const subtotal = products.reduce((acc, curr) => {
+    return acc + curr.price * curr.quantity;
+  }, extrasTotal);
+
   const total = subtotal + vat - discount;
 
   let userId = req.user._id;
@@ -86,5 +90,46 @@ exports.create = async (req, res) => {
   return res.json({
     data: newSale,
     message: "Sale created successfully",
+  });
+};
+
+exports.list = async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+
+  const sales = await Sale.find()
+    .limit(limit)
+    .skip((page - 1) * limit)
+    .sort({ createdAt: -1 })
+    .populate("user", "name email");
+
+  const total = await Sale.countDocuments();
+
+  return res.json({
+    data: sales,
+    total,
+  });
+};
+
+exports.details = async (req, res) => {
+  const sales = await Sale.findById(req.params.id).populate(
+    "user",
+    "name email"
+  );
+  return res.json({
+    data: sales,
+  });
+};
+
+exports.deleteSale = async (req, res) => {
+  const sale = await Sale.findByIdAndDelete(req.params.id);
+
+  if (!sale) {
+    return res.status(404).json({
+      error: "Sale not found",
+    });
+  }
+
+  return res.json({
+    message: "Sale deleted successfully",
   });
 };
