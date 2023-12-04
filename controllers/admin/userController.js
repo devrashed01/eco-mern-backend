@@ -4,7 +4,7 @@ const User = require("../../models/User");
 const jwt = require("jsonwebtoken");
 
 exports.list = async (req, res) => {
-  const { page = 1, limit = 10, search = "" } = req.query;
+  const { page = 1, limit = 10, search = "", status } = req.query;
 
   let aggregatedQuery = User.aggregate([
     // { name: { $regex: search, $options: "i" } },
@@ -26,6 +26,12 @@ exports.list = async (req, res) => {
           { phone: { $regex: search, $options: "i" } },
           { address: { $regex: search, $options: "i" } },
         ],
+      },
+    },
+    {
+      $match: {
+        status: status ? status : { $regex: ".*" },
+        role: { $ne: "admin" },
       },
     },
   ]);
