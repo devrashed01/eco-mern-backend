@@ -9,12 +9,11 @@ const PORT = process.env.PORT || 5000;
 
 const app = express();
 
-const corsOptions = {
-  origin: "https://eco-mern-frontend.vercel.app",
-  optionsSuccessStatus: 200,
-};
-
-app.use(cors(corsOptions));
+app.use(
+  cors({
+    origin: "https://eco-mern-frontend.vercel.app/",
+  })
+);
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
