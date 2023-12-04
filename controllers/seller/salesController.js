@@ -1,6 +1,6 @@
 const { validationResult } = require("express-validator");
-const Sale = require("../models/Sale");
-const User = require("../models/User");
+const Sale = require("../../models/Sale");
+const User = require("../../models/User");
 
 function calculateCommission(totalSalesAmount, userType) {
   let commissionPercentage;
@@ -32,7 +32,7 @@ exports.create = async (req, res) => {
   if (!errors.isEmpty())
     return res.status(400).json({ errors: errors.array() });
 
-  const { customerName, products, extras, discount, user } = req.body;
+  const { customerName, products, extras, discount } = req.body;
 
   // Calculate total
   const vat =
@@ -50,9 +50,6 @@ exports.create = async (req, res) => {
   const total = subtotal + vat - discount;
 
   let userId = req.user._id;
-  if (req.user.role === "admin") {
-    userId = user;
-  }
 
   const sale = await new Sale({
     customerName,
@@ -96,13 +93,18 @@ exports.create = async (req, res) => {
 exports.list = async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
 
-  const sales = await Sale.find()
+  let query = {};
+  if (req.user._id) {
+    query = { user: req.user._id };
+  }
+
+  const sales = await Sale.find(query)
     .limit(limit)
     .skip((page - 1) * limit)
     .sort({ createdAt: -1 })
     .populate("user", "name email");
 
-  const total = await Sale.countDocuments();
+  const total = await Sale.countDocuments(query); // Count with query for current user
 
   return res.json({
     data: sales,
@@ -111,25 +113,30 @@ exports.list = async (req, res) => {
 };
 
 exports.details = async (req, res) => {
-  const sales = await Sale.findById(req.params.id).populate(
-    "user",
-    "name email"
-  );
+  let query = {};
+  query = { _id: req.params.id, user: req.user._id };
+  const sales = await Sale.findOne(query).populate("user", "name email");
   return res.json({
     data: sales,
   });
 };
 
 exports.deleteSale = async (req, res) => {
-  const sale = await Sale.findByIdAndDelete(req.params.id);
+  const sale = await Sale.findOne({
+    _id: req.params.id,
+    user: req.user._id,
+  });
 
   if (!sale) {
     return res.status(404).json({
-      error: "Sale not found",
+      error: "Invalid sale",
     });
   }
 
+  await sale.deleteOne();
+
   return res.json({
+    sale,
     message: "Sale deleted successfully",
   });
 };

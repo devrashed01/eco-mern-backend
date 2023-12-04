@@ -6,7 +6,7 @@ const {
   list,
   details,
   deleteSale,
-} = require("../../controllers/salesController");
+} = require("../../controllers/admin/salesController");
 
 router.get("/list", list);
 
