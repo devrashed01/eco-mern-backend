@@ -5,6 +5,7 @@ const User = require("../models/User");
 const auth = require("../middleware/auth");
 const { check, validationResult } = require("express-validator");
 const upload = require("../utils/multer");
+const { getErrors } = require("../utils");
 
 // @route GET api/user/profile
 // @desc Get user
@@ -25,14 +26,15 @@ router.patch(
   [
     check("phone", "Please include a valid phone number").isMobilePhone(),
     check("name", "Name is required").not().isEmpty(),
+    check("address", "Address is required").not().isEmpty(),
   ],
   async (req, res) => {
     // check for errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty())
-      return res.status(400).json({ errors: errors.array() });
+    const errors = getErrors(req);
+    if (errors)
+      return res.status(400).json({ errors, message: "Validation error!" });
 
-    const { phone, name } = req.body;
+    const { phone, name, address } = req.body;
 
     // check if user exists
     let user = await User.findById(req.user._id).select("-password");
@@ -53,6 +55,7 @@ router.patch(
     // update user
     user.phone = phone;
     user.name = name;
+    user.address = address;
     user.avatar = avatar;
 
     // save new user

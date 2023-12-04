@@ -6,29 +6,44 @@ const jwt = require("jsonwebtoken");
 exports.list = async (req, res) => {
   const { page = 1, limit = 10, search = "" } = req.query;
 
-  let query = null;
+  let aggregatedQuery = User.aggregate([
+    // { name: { $regex: search, $options: "i" } },
+    {
+      $sort: {
+        createdAt: -1,
+      },
+    },
+    {
+      $project: {
+        password: 0,
+      },
+    },
+    {
+      $match: {
+        $or: [
+          { name: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
+          { phone: { $regex: search, $options: "i" } },
+          { address: { $regex: search, $options: "i" } },
+        ],
+      },
+    },
+  ]);
 
-  if (search) {
-    query = { name: { $regex: search, $options: "i" } };
+  let options = {
+    page,
+    limit,
+  };
+  if (limit === -1) {
+    options.limit = 100000000000;
   }
 
-  try {
-    const users = await User.find(query)
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
-      .select("-password");
-    if (!users) return res.status(404).json({ message: "No users found" });
+  const users = await User.aggregatePaginate(aggregatedQuery, options);
+  if (!users) return res.status(404).json({ message: "No users found" });
 
-    const totalDocs = await User.countDocuments(query);
+  const totalDocs = await User.countDocuments(aggregatedQuery);
 
-    res.json({
-      data: users,
-      count: totalDocs,
-      message: "Users retrieved successfully",
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
-  }
+  res.json(users);
 };
 
 exports.edit = async (req, res) => {
@@ -55,26 +70,15 @@ exports.edit = async (req, res) => {
   return res.json({ message: "User updated successfully" });
 };
 
-exports.deactivate = async (req, res) => {
+exports.toggleStatus = async (req, res) => {
   const user = await User.findById(req.params.id).select("-password");
   if (!user) return res.status(404).json({ message: "User not found" });
 
-  user.status = "inactive";
+  user.status = user.status === "inactive" ? "active" : "inactive";
 
   await user.save();
 
-  return res.json({ message: "User deactivated successfully" });
-};
-
-exports.activate = async (req, res) => {
-  const user = await User.findById(req.params.id).select("-password");
-  if (!user) return res.status(404).json({ message: "User not found" });
-
-  user.status = "active";
-
-  await user.save();
-
-  return res.json({ message: "User activated successfully" });
+  return res.json({ message: "User status updated successfully" });
 };
 
 exports.generateResetPasswordLink = async (req, res) => {

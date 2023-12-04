@@ -5,7 +5,7 @@ const { check } = require("express-validator");
 const {
   list,
   edit,
-  deactivate,
+  toggleStatus,
   activate,
   generateResetPasswordLink,
   create,
@@ -40,8 +40,7 @@ router.patch(
   ],
   edit
 );
-router.put("/deactivate/:id", deactivate);
-router.put("/activate/:id", activate);
+router.put("/toggleStatus/:id", toggleStatus);
 router.get("/generateResetPasswordLink/:id", generateResetPasswordLink);
 router.delete("/:id", deleteUser);
 

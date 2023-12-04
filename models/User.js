@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const aggregatePaginate = require('mongoose-aggregate-paginate-v2')
 
 const userSchema = new mongoose.Schema(
   {
@@ -43,6 +44,8 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+userSchema.plugin(aggregatePaginate);
 
 userSchema.methods.generateAuthToken = function () {
   const token = jwt.sign(
