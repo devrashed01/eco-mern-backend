@@ -40,7 +40,7 @@ router.patch(
   ],
   edit
 );
-router.put("/toggleStatus/:id", toggleStatus);
+router.patch("/toggleStatus/:id", toggleStatus);
 router.get("/generateResetPasswordLink/:id", generateResetPasswordLink);
 router.delete("/:id", deleteUser);
 
