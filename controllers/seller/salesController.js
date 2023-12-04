@@ -91,25 +91,57 @@ exports.create = async (req, res) => {
 };
 
 exports.list = async (req, res) => {
-  const { page = 1, limit = 10 } = req.query;
+  const { page = 1, limit = 10, search = "", status } = req.query;
 
-  let query = {};
-  if (req.user._id) {
-    query = { user: req.user._id };
+  let aggregatedQuery = Sale.aggregate([
+    {
+      $sort: {
+        createdAt: -1,
+      },
+    },
+    {
+      $match: {
+        $or: [
+          { customerName: { $regex: search, $options: "i" } },
+          { "products.name": { $regex: search, $options: "i" } },
+          { "extras.name": { $regex: search, $options: "i" } },
+          { total: { $regex: search, $options: "i" } },
+        ],
+        user: req.user._id,
+        _id: req.user._id,
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "user",
+        foreignField: "_id",
+        as: "user",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+              email: 1,
+              phone: 1,
+              address: 1,
+              role: 1,
+            },
+          },
+        ],
+      },
+    },
+  ]);
+
+  let options = {
+    page,
+    limit,
+  };
+  if (limit === -1) {
+    options.limit = 100000000000;
   }
 
-  const sales = await Sale.find(query)
-    .limit(limit)
-    .skip((page - 1) * limit)
-    .sort({ createdAt: -1 })
-    .populate("user", "name email");
-
-  const total = await Sale.countDocuments(query); // Count with query for current user
-
-  return res.json({
-    data: sales,
-    total,
-  });
+  const sales = await Sale.aggregatePaginate(aggregatedQuery, options);
+  return res.json(sales);
 };
 
 exports.details = async (req, res) => {
