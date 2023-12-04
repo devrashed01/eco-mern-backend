@@ -7,7 +7,6 @@ exports.list = async (req, res) => {
   const { page = 1, limit = 10, search = "", status } = req.query;
 
   let aggregatedQuery = User.aggregate([
-    // { name: { $regex: search, $options: "i" } },
     {
       $sort: {
         createdAt: -1,
@@ -45,9 +44,6 @@ exports.list = async (req, res) => {
   }
 
   const users = await User.aggregatePaginate(aggregatedQuery, options);
-  if (!users) return res.status(404).json({ message: "No users found" });
-
-  const totalDocs = await User.countDocuments(aggregatedQuery);
 
   res.json(users);
 };
