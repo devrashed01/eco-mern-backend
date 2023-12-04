@@ -9,15 +9,15 @@ const PORT = process.env.PORT || 5000;
 
 const app = express();
 
-app.use(
-  cors({
-    origin: "https://eco-mern-frontend.vercel.app/",
-  })
-);
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use("/uploads", express.static("uploads/"));
+app.use(
+  cors({
+    origin: "https://eco-mern-frontend.vercel.app",
+  })
+);
 
 app.use("/api", require("./routes/api"));
 
