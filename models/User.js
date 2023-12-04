@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const aggregatePaginate = require('mongoose-aggregate-paginate-v2')
+const aggregatePaginate = require("mongoose-aggregate-paginate-v2");
 
 const userSchema = new mongoose.Schema(
   {
@@ -29,8 +29,8 @@ const userSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["active", "inactive"],
-      default: "active",
+      enum: ["active", "inactive", "pending"],
+      default: "pending",
     },
     commission: {
       type: Number,
