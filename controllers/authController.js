@@ -85,7 +85,13 @@ exports.login = async (req, res) => {
 
   // destructure request body
   const { email, password } = req.body;
-  return res.status(200).json({ message: "test msg" });
+
+  try {
+    let user = await User.findOne({ email });
+    return res.json({ user });
+  } catch (error) {
+    return res.status(500).json({ message: "our could not fetch" });
+  }
 
   // check if user exists
   let user = await User.findOne({ email });
