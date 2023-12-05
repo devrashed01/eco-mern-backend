@@ -13,11 +13,7 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use("/uploads", express.static("uploads/"));
-app.use(
-  cors({
-    origin: ["https://eco-mern-frontend.vercel.app", "http://localhost:3000"],
-  })
-);
+app.use(cors());
 
 app.use("/api", require("./routes/api"));
 
