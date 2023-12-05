@@ -10,9 +10,6 @@ const {
   register,
 } = require("../controllers/authController");
 
-// @route POST api/auth/register
-// @desc Register user
-// @access Public
 router.post(
   "/register",
   [
@@ -26,9 +23,6 @@ router.post(
   register
 );
 
-// @route POST api/auth/login
-// @desc Login user
-// @access Public
 router.post(
   "/login",
   [
@@ -40,9 +34,6 @@ router.post(
   login
 );
 
-// @route POST api/auth/changePassword
-// @desc changePassword
-// @access Private
 router.put(
   "/changePassword",
   auth,
@@ -61,9 +52,6 @@ router.put(
   changePassword
 );
 
-// @route GET api/auth/resetPassword/:token
-// @desc Reset password
-// @access Private
 router.post(
   "/resetPassword",
   [
