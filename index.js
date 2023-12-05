@@ -15,7 +15,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use("/uploads", express.static("uploads/"));
 app.use(
   cors({
-    origin: ["https://eco-mern-frontend.vercel.app", "http://localhost:3000"],
+    origin: "https://eco-mern-frontend.vercel.app",
   })
 );
 
