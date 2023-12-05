@@ -1,6 +1,9 @@
 function admin(req, res, next) {
   // Check if user is authenticated and has admin role
-  if (req.user && req.user.role === "admin") {
+  if (
+    req.user &&
+    (req.user.role === "admin" || req.user.role === "superadmin")
+  ) {
     // User is authenticated and has admin role, proceed to next middleware
     next();
   } else {

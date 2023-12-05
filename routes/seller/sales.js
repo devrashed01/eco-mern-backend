@@ -22,7 +22,10 @@ router.post(
     check("products.*.quantity", "Product quantity is required").notEmpty(),
     check("products.*.price", "Product price is required").notEmpty(),
     check("discount", "Discount is required").isNumeric(),
-    check("extras").isArray().withMessage("Extra's must be an array"),
+    check("extras")
+      .isArray()
+      .withMessage("Extra's must be an array")
+      .optional(),
     check("extras.*.name", "Product name is required").notEmpty(),
     check("extras.*.price", "Product price is required").notEmpty(),
     check("extras.*.quantity", "Product quantity is required").notEmpty(),

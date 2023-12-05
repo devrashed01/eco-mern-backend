@@ -7,5 +7,6 @@ router.use(auth, admin);
 
 router.use("/user", require("./user"));
 router.use("/sales", require("./sales"));
+router.use("/statistics", require("./statistics"));
 
 module.exports = router;

@@ -31,7 +31,7 @@ exports.list = async (req, res) => {
     {
       $match: {
         status: status ? status : { $regex: ".*" },
-        // role: { $ne: "admin" },
+        role: { $nin: ["superadmin"] },
       },
     },
   ]);

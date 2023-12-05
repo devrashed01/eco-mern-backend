@@ -83,7 +83,7 @@ exports.create = async (req, res) => {
   await seller.save();
 
   // update admin's total commission
-  const admin = await User.findOne({ role: "admin" });
+  const admin = await User.findOne({ role: "superadmin" });
   const adminCommission = calculateCommission(total, admin.role);
   admin.commission += adminCommission;
   await admin.save();

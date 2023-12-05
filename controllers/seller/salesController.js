@@ -1,6 +1,7 @@
 const { validationResult } = require("express-validator");
 const Sale = require("../../models/Sale");
 const User = require("../../models/User");
+const { ObjectId } = require("mongoose").Types;
 
 function calculateCommission(totalSalesAmount, userType) {
   let commissionPercentage;
@@ -40,12 +41,12 @@ exports.create = async (req, res) => {
     products.reduce((acc, curr) => {
       return acc + curr.price * curr.quantity;
     }, 0);
-  const extrasTotal = extras.reduce((acc, curr) => {
-    return acc + curr.price * curr.quantity;
-  }, 0);
   const subtotal = products.reduce((acc, curr) => {
-    return acc + curr.price * curr.quantity;
-  }, extrasTotal);
+    const extrasTotal = curr?.extras?.reduce((acc, curr) => {
+      return acc + curr.price * curr.quantity;
+    }, 0);
+    return acc + curr.price * curr.quantity + extrasTotal;
+  }, 0);
 
   const total = subtotal + vat - discount;
 
@@ -79,7 +80,7 @@ exports.create = async (req, res) => {
   await seller.save();
 
   // update admin's total commission
-  const admin = await User.findOne({ role: "admin" });
+  const admin = await User.findOne({ role: "superadmin" });
   const adminCommission = calculateCommission(total, admin.role);
   admin.commission += adminCommission;
   await admin.save();
@@ -91,7 +92,8 @@ exports.create = async (req, res) => {
 };
 
 exports.list = async (req, res) => {
-  const { page = 1, limit = 10, search = "", status } = req.query;
+  const { page = 1, limit = 10, search = "" } = req.query;
+  let userId = new ObjectId(req.user._id);
 
   let aggregatedQuery = Sale.aggregate([
     {
@@ -107,8 +109,7 @@ exports.list = async (req, res) => {
           { "extras.name": { $regex: search, $options: "i" } },
           { total: { $regex: search, $options: "i" } },
         ],
-        user: req.user._id,
-        _id: req.user._id,
+        user: userId,
       },
     },
     {
