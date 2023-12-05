@@ -19,12 +19,9 @@ app.use(morgan("dev"));
 app.use("/api", require("./routes/api"));
 
 app.get("/", async (req, res) => {
-  // find users
-  const users = await User.find();
-  return res.json(users);
-  // res.json({
-  //   message: "Server is on 🔥",
-  // });
+  res.json({
+    message: "Server is on 🔥",
+  });
 });
 app.all("*", (req, res, next) => {
   res
