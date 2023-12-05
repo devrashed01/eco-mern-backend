@@ -86,13 +86,6 @@ exports.login = async (req, res) => {
   // destructure request body
   const { email, password } = req.body;
 
-  try {
-    let user = await User.findOne({ email });
-    return res.json({ user });
-  } catch (error) {
-    return res.status(500).json({ message: "our could not fetch" });
-  }
-
   // check if user exists
   let user = await User.findOne({ email });
   if (!user) return res.status(400).json({ message: "Invalid credentials" });

@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/dbConnect");
 const morgan = require("morgan");
+const User = require("./models/User");
 require("express-async-errors");
 require("dotenv").config();
 
@@ -18,9 +19,12 @@ app.use(morgan("dev"));
 app.use("/api", require("./routes/api"));
 
 app.get("/", (req, res) => {
-  res.json({
-    message: "Server is on 🔥",
-  });
+  // find users
+  const users = User.find();
+  return res.json(users);
+  // res.json({
+  //   message: "Server is on 🔥",
+  // });
 });
 app.all("*", (req, res, next) => {
   res
