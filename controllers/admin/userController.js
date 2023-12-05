@@ -2,6 +2,7 @@ const { validationResult } = require("express-validator");
 const User = require("../../models/User");
 
 const jwt = require("jsonwebtoken");
+const { getErrors } = require("../../utils");
 
 exports.list = async (req, res) => {
   const { page = 1, limit = 10, search = "", status } = req.query;
@@ -30,7 +31,7 @@ exports.list = async (req, res) => {
     {
       $match: {
         status: status ? status : { $regex: ".*" },
-        role: { $ne: "admin" },
+        // role: { $ne: "admin" },
       },
     },
   ]);
@@ -109,9 +110,9 @@ exports.generateResetPasswordLink = async (req, res) => {
 
 exports.create = async (req, res) => {
   // check for errors
-  const errors = validationResult(req);
-  if (!errors.isEmpty())
-    return res.status(400).json({ errors: errors.array() });
+  const errors = getErrors(req);
+  if (errors)
+    return res.status(400).json({ errors, message: "Validation error" });
 
   const { password, name, email, phone, address, status, commission, role } =
     req.body;

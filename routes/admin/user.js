@@ -27,7 +27,7 @@ router.post(
   create
 );
 router.get("/list", list);
-router.patch(
+router.post(
   "/edit/:id",
   [
     check("name", "Email is required").not().isEmpty(),
