@@ -7,9 +7,7 @@ const MONGO_URI = process.env.MONGO_URI;
 // connect to database
 const connectDB = () =>
   mongoose
-    .connect(MONGO_URI, {
-      useNewUrlParser: true,
-    })
+    .connect(MONGO_URI)
     .then(() => {
       console.log("Connected to database");
     })
