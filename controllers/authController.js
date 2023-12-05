@@ -85,6 +85,7 @@ exports.login = async (req, res) => {
 
   // destructure request body
   const { email, password } = req.body;
+  return res.status(200).json({ message: "test msg" });
 
   // check if user exists
   let user = await User.findOne({ email });
