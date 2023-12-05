@@ -13,7 +13,11 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use("/uploads", express.static("uploads/"));
-app.use(cors());
+const corsOptions = {
+  origin: "https://eco-mern-frontend.vercel.app",
+  optionsSuccessStatus: 200, // Some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+app.use(cors(corsOptions));
 
 app.use("/api", require("./routes/api"));
 
