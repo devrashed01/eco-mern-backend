@@ -76,7 +76,13 @@ exports.toggleStatus = async (req, res) => {
   const user = await User.findById(req.params.id).select("-password");
   if (!user) return res.status(404).json({ message: "User not found" });
 
-  user.status = user.status === "inactive" ? "active" : "inactive";
+  const status = {
+    active: "inactive",
+    inactive: "active",
+    pending: "active",
+  };
+
+  user.status = status[user.status];
 
   await user.save();
 

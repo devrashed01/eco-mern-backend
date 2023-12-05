@@ -28,22 +28,22 @@ const saleSchema = new mongoose.Schema(
           type: Number,
           required: true,
         },
-      },
-    ],
-    extras: [
-      {
-        name: {
-          type: String,
-          required: true,
-        },
-        price: {
-          type: Number,
-          required: true,
-        },
-        quantity: {
-          type: Number,
-          default: 1,
-        },
+        extras: [
+          {
+            name: {
+              type: String,
+              required: true,
+            },
+            price: {
+              type: Number,
+              required: true,
+            },
+            quantity: {
+              type: Number,
+              default: 1,
+            },
+          },
+        ],
       },
     ],
     subtotal: {

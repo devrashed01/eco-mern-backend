@@ -89,6 +89,12 @@ exports.login = async (req, res) => {
   // check if user exists
   let user = await User.findOne({ email });
   if (!user) return res.status(400).json({ message: "Invalid credentials" });
+  if (user?.status === "pending")
+    return res
+      .status(400)
+      .json({ message: "Your account is not approved yet" });
+  if (user?.status === "inactive")
+    return res.status(400).json({ message: "Your account is or suspended" });
 
   // check if password matches
   const isMatch = await bcrypt.compare(password, user.password);

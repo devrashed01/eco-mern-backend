@@ -1,6 +1,7 @@
 const { validationResult } = require("express-validator");
 const Sale = require("../../models/Sale");
 const User = require("../../models/User");
+const { getErrors } = require("../../utils");
 
 function calculateCommission(totalSalesAmount, userType) {
   let commissionPercentage;
@@ -28,11 +29,15 @@ function calculateCommission(totalSalesAmount, userType) {
 
 exports.create = async (req, res) => {
   // check for errors
-  const errors = validationResult(req);
-  if (!errors.isEmpty())
-    return res.status(400).json({ errors: errors.array() });
+  const errors = getErrors(req);
+  if (errors) {
+    return res.status(400).json({
+      errors,
+      message: "Validation failed",
+    });
+  }
 
-  const { customerName, products, extras, discount, user } = req.body;
+  const { customerName, products, discount, user } = req.body;
   let userId = user;
 
   // Calculate total
@@ -41,19 +46,19 @@ exports.create = async (req, res) => {
     products.reduce((acc, curr) => {
       return acc + curr.price * curr.quantity;
     }, 0);
-  const extrasTotal = extras.reduce((acc, curr) => {
-    return acc + curr.price * curr.quantity;
-  }, 0);
+
   const subtotal = products.reduce((acc, curr) => {
-    return acc + curr.price * curr.quantity;
-  }, extrasTotal);
+    const extrasTotal = curr?.extras?.reduce((acc, curr) => {
+      return acc + curr.price * curr.quantity;
+    }, 0);
+    return acc + curr.price * curr.quantity + extrasTotal;
+  }, 0);
 
   const total = subtotal + vat - discount;
 
   const sale = await new Sale({
     customerName,
     products,
-    extras,
     subtotal,
     vat,
     discount,
@@ -102,8 +107,15 @@ exports.list = async (req, res) => {
       $match: {
         $or: [
           { customerName: { $regex: search, $options: "i" } },
-          { "products.name": { $regex: search, $options: "i" } },
-          { "extras.name": { $regex: search, $options: "i" } },
+          {
+            "products.product": { $regex: search, $options: "i" },
+          },
+          {
+            "products.variant": { $regex: search, $options: "i" },
+          },
+          {
+            "products.extras.name": { $regex: search, $options: "i" },
+          },
           { total: { $regex: search, $options: "i" } },
         ],
       },
