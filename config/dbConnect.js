@@ -8,7 +8,6 @@ const MONGO_URI = process.env.MONGO_URI;
 const connectDB = () =>
   mongoose
     .connect(MONGO_URI, {
-      useUnifiedTopology: true,
       useNewUrlParser: true,
     })
     .then(() => {
