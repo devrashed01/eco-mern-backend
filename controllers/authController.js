@@ -132,3 +132,15 @@ exports.register = async (req, res) => {
   const token = user.generateAuthToken();
   res.json({ token });
 };
+
+exports.googleAuth = async (req, res) => {
+  console.log(req, "res====");
+  const payload = {
+    id: req.user._id, // eslint-disable-line
+  };
+
+  const token = await jwt.sign(payload, process.env.JWT_SECRET);
+  res.clearCookie("auth_token");
+  res.cookie("auth_token", token);
+  res.redirect(process.env.clientURL);
+};

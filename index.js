@@ -1,10 +1,13 @@
 const express = require("express");
 const cors = require("cors");
-const connectDB = require("./config/dbConnect");
+const passport = require("passport");
 const morgan = require("morgan");
-const User = require("./models/User");
 require("express-async-errors");
 require("dotenv").config();
+const session = require("express-session");
+
+const connectDB = require("./config/dbConnect");
+const User = require("./models/User");
 
 const PORT = process.env.PORT || 5000;
 
@@ -15,6 +18,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static("uploads/"));
 app.use(morgan("dev"));
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: true },
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
+require("./services/googleStrategy");
 
 app.use("/api", require("./routes/api"));
 

@@ -1,3 +1,4 @@
+const passport = require("passport");
 const router = require("express").Router();
 const { check } = require("express-validator");
 
@@ -8,7 +9,9 @@ const {
   changePassword,
   login,
   register,
+  googleAuth,
 } = require("../controllers/authController");
+const User = require("../models/User");
 
 router.post(
   "/register",
@@ -68,5 +71,24 @@ router.post(
   ],
   resetPassword
 );
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+  User.findById(id).then((user) => {
+    done(null, user);
+  });
+});
+
+router.get(
+  "/google",
+  passport.authenticate("google", {
+    scope: ["email", "profile"],
+  })
+);
+
+router.get("/google/callback", passport.authenticate("google"), googleAuth);
 
 module.exports = router;
