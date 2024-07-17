@@ -36,7 +36,7 @@ app.use("/api", require("./routes/api"));
 
 app.get("/", async (req, res) => {
   res.json({
-    message: "Server is on 🔥",
+    message: "Server is on 🔥 ..",
   });
 });
 app.all("*", (req, res, next) => {
